@@ -1,0 +1,8 @@
+MANIFEST
+Makefile.PL
+SessionX.pm
+README
+SessionX/Generate/MD5.pm
+test.pl
+testcount.pl
+README
