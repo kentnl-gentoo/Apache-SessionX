@@ -1,15 +1,26 @@
 
 use Apache::SessionX ;
 use Apache::SessionX::Config ;
+use Apache::SessionX::Manager ;
 
 use Config ;
 
-use Time::HiRes qw(gettimeofday tv_interval) ;
+
+BEGIN { eval "use Time::HiRes qw(gettimeofday tv_interval) ;" ; }
 use strict ;
 
-use vars qw(@tests %stdargs $timeout $errors $numprocs) ;
+use vars qw(@tests %stdargs $timeout $errors $numprocs $win32) ;
 
-@tests = @Apache::SessionX::Config::confs ;
+$win32 = ($Config{osname} =~ /win32/i) ;
+
+if (@ARGV)
+    {
+    @tests = @ARGV ;
+    }
+else
+    {
+    @tests = @Apache::SessionX::Config::confs ;
+    }
 
 %stdargs = (
     SemaphoreKey => 0x7654,
@@ -126,9 +137,9 @@ sub simpletest
 
     {
     local $SIG{ALRM} = sub { Error ("Time out. Locking not working properly") } ;    
-    alarm $timeout ;
+    alarm $timeout if (!$win32) ;
     dosimpletest (@_) ;
-    alarm 0 ;
+    alarm 0  if (!$win32) ;
     }
 
 
@@ -254,9 +265,9 @@ sub persisttest
 
     {
     local $SIG{ALRM} = sub { Error ("Time out. Locking not working properly") } ;    
-    alarm $timeout ;
+    alarm $timeout  if (!$win32) ;
     dopersisttest (@_) ;
-    alarm 0 ;
+    alarm 0  if (!$win32) ;
     }
 
 
@@ -288,9 +299,9 @@ sub failtest
 
     {
     local $SIG{ALRM} = sub { Error ("Time out. Locking not working properly") ;  } ;    
-    alarm $timeout ;
+    alarm $timeout  if (!$win32) ;
     dofailtest (@_) ;
-    alarm 0 ;
+    alarm 0  if (!$win32) ;
     }
 
 sub preopen
@@ -398,7 +409,7 @@ foreach $cfg (@tests)
 
     preopen    ($n++, "o Open",                       $cfg, {}) ;
 
-    my $t0 = [gettimeofday] ;
+    my $t0 = eval { [gettimeofday()] } || [0] ;
 
     simpletest ($n++, "s No Args",                    $cfg, {}) ;
     simpletest ($n++, "s Lazy",                       $cfg, {lazy => 1}) ;
@@ -423,11 +434,31 @@ foreach $cfg (@tests)
     persisttest ($n++, "p newid, lazy",                $cfg, {lazy => 1, newid => 1}, 1) ;
     persisttest ($n++, "p newid 2",                    $cfg, {lazy => 1, newid => 1, create_unknown => 1}, 1, 'aabbcc') ;
 
-    my $t1 = [gettimeofday] ;
+    my $t1 = eval { [gettimeofday()] } || [0] ;
 
     concurrent ($n++, "c concurrent access",          $cfg) ;
 
-    print "** ", $time{$cfg} = tv_interval ($t0, $t1) , "s\n" ;
+    print "** ", $time{$cfg} = eval { tv_interval ($t0, $t1) } || 0 , "s\n" ;
+
+    my $mgr = Apache::SessionX::Manager -> new ({config => $cfg}) ;
+    my $id ;
+    my $cnt = eval { $mgr -> count_sessions ; } ;
+    if (!$@)
+	{
+    	print "Found $cnt sessions\n" ;
+    	my $cnt2 = 0 ;
+    	while ($id = $mgr -> next_session_id)
+            {
+            #print $id, "\n" ;
+            $cnt2++ ;
+            }
+
+        Error ("count_sessions ($cnt) and next_session_id ($cnt2) counts differs") if ($cnt != $cnt2) ;
+        }
+    else
+        {
+	print "SessionManager not supported by $cfg\n" ;
+	}
     }
 
 if ($errors)

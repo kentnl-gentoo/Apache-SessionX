@@ -3,6 +3,8 @@ Makefile.PL
 SessionX.pm
 README
 SessionX/Generate/MD5.pm
+SessionX/Store/File.pm
+SessionX/Manager.pm
 test.pl
 testcount.pl
 README

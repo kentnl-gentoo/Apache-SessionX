@@ -9,7 +9,7 @@
 #   IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 #   WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-#   $Id: Makefile.PL,v 1.1.1.1 2001/07/17 05:41:18 richter Exp $
+#   $Id: Makefile.PL,v 1.3 2001/09/19 06:11:01 richter Exp $
 #
 ###################################################################################
 
@@ -27,8 +27,11 @@ use ExtUtils::MakeMaker;
             'Serialize' => 'Storable',
             'Directory' => '?',
             'Info'      => 'File, use semaphore for locking', 
-
             },
+        'require'   => 
+            [
+            'IPC::SysV',
+            ],
         },
 
     'FileFile' => 
@@ -70,6 +73,7 @@ use ExtUtils::MakeMaker;
         'require'   => 
             [
             'DBD::mysql',
+            'IPC::SysV',
             ],
         },
 

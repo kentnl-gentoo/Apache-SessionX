@@ -10,7 +10,7 @@
 #   IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 #   WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-#   $Id: SessionX.pm,v 1.1.1.1 2001/07/17 05:41:18 richter Exp $
+#   $Id: SessionX.pm,v 1.4 2001/12/04 13:33:39 richter Exp $
 #
 ###################################################################################
 
@@ -20,7 +20,7 @@ package Apache::SessionX ;
 use strict;
 use vars qw(@ISA $VERSION);
 
-$VERSION = '2.00b3';
+$VERSION = '2.00b5';
 @ISA = qw(Apache::Session);
 
 use Apache::Session;
@@ -43,11 +43,6 @@ sub TIEHASH {
         die "Additional arguments should be in the form of a hash reference";
         }
 
-    #Set-up the data structure and make it an object
-    #of our class
-
-
-    #$args -> {IDLength} ||= 32 ;
     my $config = $args -> {config} || $Apache::SessionX::Config::default;
     foreach my $cfg (keys  (%{$Apache::SessionX::Config::param{$config}})) 
         {
