@@ -39,7 +39,7 @@ sub validate {
     my $session = shift;
     
     if ($session->{data}->{_session_id} !~ /^[a-fA-F0-9]+$/) {
-        die;
+        die 'Invalid session id' ;
     }
 }
 

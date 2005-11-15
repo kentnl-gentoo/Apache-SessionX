@@ -8,3 +8,5 @@ SessionX/Manager.pm
 test.pl
 testcount.pl
 README
+META.yml                                 Module meta-data (added by MakeMaker)
+CHANGES

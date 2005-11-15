@@ -20,7 +20,7 @@ package Apache::SessionX ;
 use strict;
 use vars qw(@ISA $VERSION);
 
-$VERSION = '2.00b5';
+$VERSION = '2.01';
 @ISA = qw(Apache::Session);
 
 use Apache::Session;
@@ -137,8 +137,9 @@ sub init
         #check the session ID for remote exploitation attempts
         #this will die() on suspicious session IDs.        
 
-        eval { &{$self->{validate}}($self); } ;
-        if (!$@)
+        #eval { &{$self->{validate}}($self); } ;
+        &{$self->{validate}}($self); 
+        #if (!$@)
             { # session id is ok        
 
             $self->{status} &= ($self->{status} ^ NEW);
@@ -448,7 +449,7 @@ sub validate {
     my $session = shift;
     
     if ($session->{data}->{_session_id} !~ /^[a-fA-F0-9]+$/) {
-        die;
+        die 'Invalid session id' ;
     }
 }
 
